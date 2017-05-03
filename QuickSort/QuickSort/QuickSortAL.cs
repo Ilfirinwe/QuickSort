@@ -18,54 +18,52 @@ namespace QuickSort
         public static Int64 SortAndCountComparisons(Int32[] Data, PivotType PivotSetting)
         {
             PivotSettings = PivotSetting;
-            return SortAndCountComparisons(Data, 0, Data.Length);
+            return SortAndCountComparisons(Data, 0, Data.Length - 1);
         }
 
-        private static Int64 SortAndCountComparisons(Int32[] Data, Int32 StartingIndex, Int32 Length)
+        private static Int64 SortAndCountComparisons(Int32[] Data, Int32 StartIndex, Int32 EndIndex)
         {
-            if (Length <= 1) return 0;
-            Int32 Pivot = ChoosePivot(Data, StartingIndex, Length);
-            Console.WriteLine("Pivot index = " + Pivot);
-            Swap(Data, Pivot, StartingIndex);
-            Int32 RightBoundary = StartingIndex + 1;
-            Int32 LeftBoundary = StartingIndex + 1;
-            for (RightBoundary = StartingIndex + 1; RightBoundary < StartingIndex + Length; RightBoundary++)
+            if (StartIndex >= EndIndex) return 0;
+            Int32 Pivot = ChoosePivot(Data, StartIndex, EndIndex);
+            Swap(Data, Pivot, StartIndex);
+            Int32 LeftBoundary = StartIndex + 1;
+            Int32 RightBoundary;
+            for (RightBoundary = StartIndex + 1; RightBoundary <= EndIndex; RightBoundary++)
             {
-                if (Data[RightBoundary] < Data[Pivot])
+                if (Data[RightBoundary] < Data[StartIndex])
                 {
                     Swap(Data, LeftBoundary, RightBoundary);
                     LeftBoundary++;
                 }
-                if (LeftBoundary == Pivot)
-                {
-                    LeftBoundary++;
-                }
             }
-            Swap(Data, Pivot, LeftBoundary - 1);
+            Swap(Data, StartIndex, LeftBoundary - 1);
+            Int64 LeftComparisons = SortAndCountComparisons(Data, StartIndex, LeftBoundary - 2);
+            Int64 RightComparisons = SortAndCountComparisons(Data, LeftBoundary, EndIndex);
 
-            Int32 LeftSubArrayLength = LeftBoundary - StartingIndex - 1;
-            Int64 LeftComparisons = 0;
-
-            if (LeftSubArrayLength > 0) LeftComparisons = SortAndCountComparisons(Data, StartingIndex, LeftSubArrayLength);
-
-            Int32 RightSubArrayLength = RightBoundary - LeftBoundary;
-            Int64 RightComparisons = 0;
-
-            if (RightSubArrayLength > 0) RightComparisons = SortAndCountComparisons(Data, LeftBoundary, RightSubArrayLength);
-
-            Int64 ComparisonsCount = Length - 1 + RightComparisons + LeftComparisons;
-
-            Console.WriteLine("Количество сравнений на массиве данных со стартовым индексом " + StartingIndex + " и длиной " + Length + ": " + ComparisonsCount);
+            Int64 ComparisonsCount = EndIndex - StartIndex + RightComparisons + LeftComparisons;
+            
             return ComparisonsCount;
         }
 
-        private static Int32 ChoosePivot(Int32[] Data, Int32 StartingIndex, Int32 Length)
+        private static Int32 ChoosePivot(Int32[] Data, Int32 StartIndex, Int32 EndIndex)
         {
             if (PivotSettings == PivotType.AlwaysFirst)
-                return StartingIndex;
+                return StartIndex;
             else if (PivotSettings == PivotType.AlwaysLast)
-                return StartingIndex + Length - 1;
-            else return StartingIndex;
+                return EndIndex;
+            else
+            {
+                Int32 Length = EndIndex - StartIndex;
+                Int32 MiddleIndex = StartIndex + Length / 2;
+                if (Math.Max(Math.Max(Data[StartIndex], Data[MiddleIndex]), Data[EndIndex]) != Data[StartIndex]
+                    && Math.Min(Math.Min(Data[StartIndex], Data[MiddleIndex]), Data[EndIndex]) != Data[StartIndex])
+                    return StartIndex;
+
+                else if (Math.Max(Math.Max(Data[StartIndex], Data[MiddleIndex]), Data[EndIndex]) != Data[MiddleIndex]
+                    && Math.Min(Math.Min(Data[StartIndex], Data[MiddleIndex]), Data[EndIndex]) != Data[MiddleIndex])
+                    return MiddleIndex;
+                else return EndIndex;
+            }
         }
 
         private static void Swap(Int32[] Data, Int32 FirstIndex, Int32 SecondIndex)

@@ -13,12 +13,12 @@ namespace QuickSort
     {
         static void Main(string[] args)
         {
-            var Data = new Int32[10];
+            var Data = new Int32[10000];
             using (var Reader = new StreamReader("Data.txt"))
-                for (Int32 Iterator = 0; Iterator < 10; Iterator++)
+                for (Int32 Iterator = 0; Iterator < 10000; Iterator++)
                     Data[Iterator] = Int32.Parse(Reader.ReadLine());
 
-            Int64 ComparisonsCount = QuickSortAL.SortAndCountComparisons(Data, QuickSortAL.PivotType.AlwaysLast);
+            Int64 ComparisonsCount = QuickSortAL.SortAndCountComparisons(Data, QuickSortAL.PivotType.MedianOfThree);
             Thread thread = new Thread(() => Clipboard.SetText(ComparisonsCount.ToString()));
             thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
             thread.Start();
